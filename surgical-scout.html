@@ -247,6 +247,51 @@
             color: var(--text-secondary);
         }
 
+        /* Warming state */
+        .warming-badge {
+            display: none;
+            margin: 12px auto 0;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15));
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            border-radius: 24px;
+            font-size: 0.9rem;
+            color: #fbbf24;
+            font-weight: 600;
+            max-width: 360px;
+            animation: pulse-badge 2s ease-in-out infinite;
+        }
+
+        .warming-badge.visible {
+            display: inline-block;
+        }
+
+        @keyframes pulse-badge {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.75;
+                transform: scale(0.98);
+            }
+        }
+
+        .warming-sub {
+            display: none;
+            margin-top: 8px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .warming-sub.visible {
+            display: block;
+        }
+
         /* AI Reasoning Section */
         .ai-reasoning {
             display: none;
@@ -600,7 +645,10 @@
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <div class="loading-text">AI is analyzing your case and searching PubMed...</div>
+            <div class="loading-text" id="loadingText">Connecting to server...</div>
+            <div class="warming-badge" id="warmingBadge">😴 Waking up server — hang tight!</div>
+            <div class="warming-sub" id="warmingSub">Free-tier servers sleep after inactivity. Usually takes 20–30
+                seconds.</div>
         </div>
 
         <div class="error" id="error"></div>
@@ -798,12 +846,27 @@
             return div;
         }
 
+        let warmingTimer = null;
+
         function showLoading() {
             document.getElementById('loading').classList.add('active');
+            document.getElementById('loadingText').textContent = 'Connecting to server...';
+            document.getElementById('warmingBadge').classList.remove('visible');
+            document.getElementById('warmingSub').classList.remove('visible');
+
+            // After 3s with no response, show the warming message
+            warmingTimer = setTimeout(() => {
+                document.getElementById('loadingText').textContent = 'AI is analyzing your case and searching PubMed...';
+                document.getElementById('warmingBadge').classList.add('visible');
+                document.getElementById('warmingSub').classList.add('visible');
+            }, 3000);
         }
 
         function hideLoading() {
+            clearTimeout(warmingTimer);
             document.getElementById('loading').classList.remove('active');
+            document.getElementById('warmingBadge').classList.remove('visible');
+            document.getElementById('warmingSub').classList.remove('visible');
         }
 
         function showError(message) {
