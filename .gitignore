@@ -1,0 +1,44 @@
+# Environment and secrets
+.env
+*.env
+.env.*
+.env\ 2
+.env\ *
+
+# Service account credentials (never commit these!)
+service_account.json
+*service_account*.json
+*.pem
+*.key
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Logs
+*.log
+surgical_scout.log
+surgical_scout_cron.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Personal case lists (optional - uncomment if you don't want to share)
+# cases.txt

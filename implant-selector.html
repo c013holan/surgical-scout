@@ -1,0 +1,3441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Implant Selection Tool</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #004c99;
+            --secondary: #00a86b;
+            --background: #f8f9fa;
+            --surface: #ffffff;
+            --surface-2: #f0f2f5;
+            --text: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --shadow-lg: rgba(0, 0, 0, 0.12);
+            --error: #dc3545;
+            --warning: #ffc107;
+            --success: #28a745;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 15px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: var(--surface);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .form-group input[type="number"] {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .checkbox-label:hover {
+            background: var(--surface-2);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--shadow-lg);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .results h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .result-card {
+            background: var(--surface-2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.2s;
+        }
+
+        .result-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .spec-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Responsive Grid */
+        .match-score {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .result-specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .spec-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .spec-value {
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+        }
+
+        .result-notes {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .info-badge {
+            display: inline-block;
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .surface-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-left: 8px;
+        }
+
+        .surface-smooth {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .surface-textured {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .surface-nano-texture {
+            background: #e7f3ff;
+            color: #014361;
+            border: 1px solid #0078d4;
+        }
+
+        .surface-anatomic {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .warning-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .warning-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // FDA-approved implant database (US market only)
+        // Note: Motiva included for off-label breast reconstruction use
+        const IMPLANT_DATABASE = {
+            'Allergan/Natrelle': {
+                profiles: ['Low', 'Moderate', 'Moderate Plus', 'Full', 'Extra Full'],
+                cohesivities: ['Inspira Soft (SoftTouch)', 'Inspira Responsive', 'Inspira Cohesive', 'Style 410 (Gummy Bear)'],
+                // Catalog lookup map: Code prefix -> Gel/Profile logic handled in handleCatalogLookup
+                surfaceTypes: {
+                    'Inspira Responsive': { texture: 'Smooth', shape: 'Round' },
+                    'Inspira Soft (SoftTouch)': { texture: 'Smooth', shape: 'Round' },
+                    'Inspira Cohesive': { texture: 'Smooth', shape: 'Round' },
+                    'Biocell Textured': { texture: 'Biocell (Textured)', shape: 'Round/Anatomic', warning: 'BIA-ALCL Risk (Recalled)' },
+                    'Style 410 (Gummy Bear)': { texture: 'Biocell (Textured)', shape: 'Anatomic', warning: 'BIA-ALCL Risk (Recalled)' }
+                },
+                // Exact dimensions from catalog (Volume -> { width, proj })
+                // Note: Dimensions are consistent across Gel types (Responsive, Soft, Cohesive) for the same profile
+                catalog: {
+                    'Low': [
+                        { vol: 100, width: 9.5, proj: 2.0 }, { vol: 125, width: 10.25, proj: 2.0 },
+                        { vol: 140, width: 10.5, proj: 2.1 }, { vol: 170, width: 11.0, proj: 2.2 },
+                        { vol: 200, width: 11.5, proj: 2.3 }, { vol: 230, width: 12.0, proj: 2.4 },
+                        { vol: 260, width: 12.5, proj: 2.5 }, { vol: 290, width: 13.0, proj: 2.6 },
+                        { vol: 320, width: 13.5, proj: 2.7 }, { vol: 350, width: 14.0, proj: 2.8 },
+                        { vol: 380, width: 14.5, proj: 2.9 }, { vol: 410, width: 15.0, proj: 3.0 },
+                        { vol: 460, width: 15.5, proj: 3.1 }, { vol: 500, width: 16.0, proj: 3.2 },
+                        { vol: 560, width: 16.5, proj: 3.3 }, { vol: 600, width: 17.0, proj: 3.4 }
+                    ],
+                    'Low Plus': [
+                        { vol: 125, width: 9.5, proj: 2.5 }, { vol: 145, width: 10.0, proj: 2.6 },
+                        { vol: 165, width: 10.5, proj: 2.7 }, { vol: 190, width: 11.0, proj: 2.8 },
+                        { vol: 205, width: 11.25, proj: 2.9 }, { vol: 220, width: 11.5, proj: 3.0 },
+                        { vol: 235, width: 11.75, proj: 3.1 }, { vol: 250, width: 12.0, proj: 3.1 },
+                        { vol: 265, width: 12.25, proj: 3.2 }, { vol: 280, width: 12.5, proj: 3.3 },
+                        { vol: 300, width: 12.75, proj: 3.3 }, { vol: 325, width: 13.0, proj: 3.4 },
+                        { vol: 340, width: 13.25, proj: 3.5 }, { vol: 360, width: 13.5, proj: 3.5 },
+                        { vol: 400, width: 14.0, proj: 3.6 }, { vol: 440, width: 14.5, proj: 3.8 },
+                        { vol: 460, width: 15.0, proj: 3.9 }, { vol: 540, width: 15.5, proj: 4.0 },
+                        { vol: 600, width: 16.0, proj: 4.2 }, { vol: 640, width: 16.5, proj: 4.3 }
+                    ],
+                    'Moderate': [
+                        { vol: 145, width: 9.5, proj: 3.0 }, { vol: 175, width: 10.0, proj: 3.3 },
+                        { vol: 195, width: 10.25, proj: 3.4 }, { vol: 210, width: 10.5, proj: 3.5 },
+                        { vol: 240, width: 11.0, proj: 3.7 }, { vol: 255, width: 11.25, proj: 3.8 },
+                        { vol: 275, width: 11.5, proj: 3.9 }, { vol: 295, width: 11.75, proj: 3.9 },
+                        { vol: 310, width: 12.0, proj: 4.0 }, { vol: 330, width: 12.25, proj: 4.1 },
+                        { vol: 345, width: 12.5, proj: 4.1 }, { vol: 360, width: 12.75, proj: 4.2 },
+                        { vol: 375, width: 13.0, proj: 4.3 }, { vol: 405, width: 13.25, proj: 4.4 },
+                        { vol: 445, width: 13.5, proj: 4.5 }, { vol: 485, width: 14.0, proj: 4.6 },
+                        { vol: 520, width: 14.5, proj: 4.8 }, { vol: 560, width: 14.75, proj: 4.8 },
+                        { vol: 600, width: 15.0, proj: 4.9 }, { vol: 640, width: 15.3, proj: 5.0 },
+                        { vol: 685, width: 16.0, proj: 5.2 }, { vol: 755, width: 16.5, proj: 5.0 }
+                    ],
+                    'Full': [
+                        { vol: 180, width: 9.5, proj: 4.0 }, { vol: 200, width: 9.75, proj: 4.1 },
+                        { vol: 220, width: 10.0, proj: 4.2 }, { vol: 240, width: 10.5, proj: 4.3 },
+                        { vol: 265, width: 11.0, proj: 4.4 }, { vol: 295, width: 11.25, proj: 4.5 },
+                        { vol: 325, width: 11.4, proj: 4.6 }, { vol: 335, width: 11.5, proj: 4.7 },
+                        { vol: 345, width: 11.75, proj: 4.8 }, { vol: 360, width: 12.0, proj: 4.9 },
+                        { vol: 385, width: 12.25, proj: 5.0 }, { vol: 415, width: 12.5, proj: 5.1 },
+                        { vol: 450, width: 12.75, proj: 5.3 }, { vol: 485, width: 13.0, proj: 5.4 },
+                        { vol: 520, width: 13.25, proj: 5.5 }, { vol: 560, width: 13.5, proj: 5.7 },
+                        { vol: 595, width: 13.75, proj: 5.8 }, { vol: 650, width: 14.5, proj: 5.9 },
+                        { vol: 695, width: 14.75, proj: 6.0 }, { vol: 745, width: 15.0, proj: 6.1 },
+                        { vol: 770, width: 15.5, proj: 6.0 }
+                    ],
+                    'Extra Full': [
+                        { vol: 200, width: 10.0, proj: 4.5 }, { vol: 225, width: 10.0, proj: 4.5 },
+                        { vol: 255, width: 10.25, proj: 4.8 }, { vol: 285, width: 10.5, proj: 5.0 },
+                        { vol: 310, width: 10.75, proj: 5.2 }, { vol: 340, width: 11.0, proj: 5.4 },
+                        { vol: 375, width: 11.25, proj: 5.8 }, { vol: 400, width: 11.4, proj: 5.8 }, { vol: 405, width: 11.5, proj: 5.8 },
+                        { vol: 420, width: 11.75, proj: 5.9 }, { vol: 445, width: 12.0, proj: 6.0 },
+                        { vol: 470, width: 12.25, proj: 6.1 }, { vol: 495, width: 12.5, proj: 6.1 },
+                        { vol: 520, width: 12.75, proj: 6.2 }, { vol: 545, width: 13.0, proj: 6.2 },
+                        { vol: 560, width: 13.25, proj: 6.3 }, { vol: 580, width: 13.5, proj: 6.4 },
+                        { vol: 615, width: 13.75, proj: 6.4 }, { vol: 650, width: 14.0, proj: 6.5 },
+                        { vol: 700, width: 14.25, proj: 6.6 }, { vol: 750, width: 14.5, proj: 6.7 },
+                        { vol: 800, width: 15.0, proj: 6.7 }
+                    ]
+                },
+                ranges: {
+                    'Low': { min: 120, max: 800, projection: 1.0 },
+                    'Moderate': { min: 125, max: 800, projection: 1.3 },
+                    'Moderate Plus': { min: 150, max: 800, projection: 1.5 },
+                    'Full': { min: 150, max: 800, projection: 1.8 },
+                    'Extra Full': { min: 250, max: 800, projection: 2.1 }
+                },
+                baseWidthFormula: (volume, profile) => {
+                    const projectionFactors = {
+                        'Low': 1.15,
+                        'Moderate': 1.0,
+                        'Moderate Plus': 0.95,
+                        'Full': 0.85,
+                        'Extra Full': 0.75
+                    };
+                    return Math.sqrt(volume / (Math.PI * projectionFactors[profile])) * 2;
+                }
+            },
+            'Mentor': {
+                profiles: ["High Profile", "High Profile BOOST", "High Profile Xtra", "Moderate Classic", "Moderate High BOOST", "Moderate High Xtra", "Moderate Plus BOOST", "Moderate Plus Profile", "Moderate Plus Xtra", "Ultra High Profile"],
+                cohesivities: ["MemoryGel", "MemoryGel Xtra", "MemoryGel BOOST", "MemoryShape (Form-Stable)"],
+                surfaceTypes: {
+
+                    "MemoryGel": {
+
+                        "texture": "Smooth",
+                        "shape": "Round"
+
+                    },
+                    "MemoryGel Xtra": {
+
+                        "texture": "Smooth",
+                        "shape": "Round"
+
+                    },
+                    "MemoryGel BOOST": {
+
+                        "texture": "Smooth",
+                        "shape": "Round"
+
+                    },
+                    "MemoryShape (Form-Stable)": {
+
+                        "texture": "Siltex Textured",
+                        "shape": "Anatomic",
+                        "warning": "Textured Surface"
+
+                    }
+
+                },
+                ranges: {
+
+                    "High Profile": {
+
+                        "min": 125,
+                        "max": 800,
+                        "projection": 0.88
+
+                    },
+                    "High Profile BOOST": {
+
+                        "min": 200,
+                        "max": 775,
+                        "projection": 0.97
+
+                    },
+                    "High Profile Xtra": {
+
+                        "min": 150,
+                        "max": 755,
+                        "projection": 0.98
+
+                    },
+                    "Moderate Classic": {
+
+                        "min": 150,
+                        "max": 800,
+                        "projection": 0.54
+
+                    },
+                    "Moderate High BOOST": {
+
+                        "min": 150,
+                        "max": 700,
+                        "projection": 0.82
+
+                    },
+                    "Moderate High Xtra": {
+
+                        "min": 130,
+                        "max": 700,
+                        "projection": 0.82
+
+                    },
+                    "Moderate Plus BOOST": {
+
+                        "min": 130,
+                        "max": 730,
+                        "projection": 0.68
+
+                    },
+                    "Moderate Plus Profile": {
+
+                        "min": 350,
+                        "max": 750,
+                        "projection": 0.61
+
+                    },
+                    "Moderate Plus Xtra": {
+
+                        "min": 115,
+                        "max": 685,
+                        "projection": 0.69
+
+                    },
+                    "Ultra High Profile": {
+
+                        "min": 135,
+                        "max": 750,
+                        "projection": 1.02
+
+                    }
+
+                },
+                catalog: {
+
+                    "Moderate Plus BOOST": [
+                        {
+
+                            "vol": 130,
+                            "width": 8.8,
+                            "proj": 3.1,
+                            "code": "SMPB-130",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 160,
+                            "width": 9.3,
+                            "proj": 3.3,
+                            "code": "SMPB-160",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 185,
+                            "width": 9.8,
+                            "proj": 3.3,
+                            "code": "SMPB-185",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 210,
+                            "width": 10.3,
+                            "proj": 3.5,
+                            "code": "SMPB-210",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 235,
+                            "width": 10.7,
+                            "proj": 3.6,
+                            "code": "SMPB-235",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 265,
+                            "width": 11.2,
+                            "proj": 3.6,
+                            "code": "SMPB-265",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 290,
+                            "width": 11.4,
+                            "proj": 3.9,
+                            "code": "SMPB-290",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 320,
+                            "width": 11.6,
+                            "proj": 4.1,
+                            "code": "SMPB-320",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 340,
+                            "width": 12.0,
+                            "proj": 4.1,
+                            "code": "SMPB-340",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 390,
+                            "width": 12.7,
+                            "proj": 4.1,
+                            "code": "SMPB-390",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 430,
+                            "width": 12.9,
+                            "proj": 4.4,
+                            "code": "SMPB-430",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 450,
+                            "width": 13.2,
+                            "proj": 4.5,
+                            "code": "SMPB-450",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 480,
+                            "width": 13.4,
+                            "proj": 4.6,
+                            "code": "SMPB-480",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 530,
+                            "width": 13.9,
+                            "proj": 4.7,
+                            "code": "SMPB-530",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 545,
+                            "width": 14.1,
+                            "proj": 4.8,
+                            "code": "SMPB-545",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 590,
+                            "width": 14.3,
+                            "proj": 5.0,
+                            "code": "SMPB-590",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 630,
+                            "width": 14.8,
+                            "proj": 5.0,
+                            "code": "SMPB-630",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 675,
+                            "width": 15.1,
+                            "proj": 5.0,
+                            "code": "SMPB-675",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 730,
+                            "width": 15.6,
+                            "proj": 5.1,
+                            "code": "SMPB-730",
+                            "cohesivity": "BOOST"
+
+                        }
+                    ],
+                    "Moderate High BOOST": [
+                        {
+
+                            "vol": 150,
+                            "width": 8.8,
+                            "proj": 3.7,
+                            "code": "SMHB-150",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 170,
+                            "width": 9.2,
+                            "proj": 3.9,
+                            "code": "SMHB-170",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 190,
+                            "width": 9.5,
+                            "proj": 3.9,
+                            "code": "SMHB-190",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 210,
+                            "width": 9.8,
+                            "proj": 4.2,
+                            "code": "SMHB-210",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 230,
+                            "width": 10.1,
+                            "proj": 4.3,
+                            "code": "SMHB-230",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 260,
+                            "width": 10.5,
+                            "proj": 4.3,
+                            "code": "SMHB-260",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 280,
+                            "width": 10.7,
+                            "proj": 4.4,
+                            "code": "SMHB-280",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 310,
+                            "width": 11.1,
+                            "proj": 4.6,
+                            "code": "SMHB-310",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 330,
+                            "width": 11.3,
+                            "proj": 4.7,
+                            "code": "SMHB-330",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 355,
+                            "width": 11.6,
+                            "proj": 4.8,
+                            "code": "SMHB-355",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 375,
+                            "width": 11.8,
+                            "proj": 4.9,
+                            "code": "SMHB-375",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 400,
+                            "width": 12.1,
+                            "proj": 5.0,
+                            "code": "SMHB-400",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 435,
+                            "width": 12.4,
+                            "proj": 5.2,
+                            "code": "SMHB-435",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 470,
+                            "width": 12.8,
+                            "proj": 5.2,
+                            "code": "SMHB-470",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 500,
+                            "width": 13.2,
+                            "proj": 5.3,
+                            "code": "SMHB-500",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 545,
+                            "width": 13.5,
+                            "proj": 5.5,
+                            "code": "SMHB-545",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 580,
+                            "width": 13.8,
+                            "proj": 5.5,
+                            "code": "SMHB-580",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 635,
+                            "width": 14.2,
+                            "proj": 5.6,
+                            "code": "SMHB-635",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 700,
+                            "width": 14.8,
+                            "proj": 5.8,
+                            "code": "SMHB-700",
+                            "cohesivity": "BOOST"
+
+                        }
+                    ],
+                    "High Profile BOOST": [
+                        {
+
+                            "vol": 200,
+                            "width": 9.0,
+                            "proj": 4.4,
+                            "code": "SHPB-200",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 235,
+                            "width": 9.5,
+                            "proj": 4.7,
+                            "code": "SHPB-235",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 260,
+                            "width": 9.8,
+                            "proj": 4.8,
+                            "code": "SHPB-260",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 285,
+                            "width": 10.3,
+                            "proj": 4.9,
+                            "code": "SHPB-285",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 325,
+                            "width": 10.5,
+                            "proj": 5.3,
+                            "code": "SHPB-325",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 370,
+                            "width": 11.0,
+                            "proj": 5.4,
+                            "code": "SHPB-370",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 405,
+                            "width": 11.2,
+                            "proj": 5.6,
+                            "code": "SHPB-405",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 440,
+                            "width": 11.6,
+                            "proj": 5.8,
+                            "code": "SHPB-440",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 480,
+                            "width": 12.2,
+                            "proj": 5.8,
+                            "code": "SHPB-480",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 520,
+                            "width": 12.3,
+                            "proj": 6.0,
+                            "code": "SHPB-520",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 545,
+                            "width": 12.5,
+                            "proj": 6.1,
+                            "code": "SHPB-545",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 585,
+                            "width": 12.8,
+                            "proj": 6.3,
+                            "code": "SHPB-585",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 635,
+                            "width": 13.2,
+                            "proj": 6.4,
+                            "code": "SHPB-635",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 685,
+                            "width": 13.7,
+                            "proj": 6.4,
+                            "code": "SHPB-685",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 740,
+                            "width": 14.1,
+                            "proj": 6.6,
+                            "code": "SHPB-740",
+                            "cohesivity": "BOOST"
+
+                        },
+                        {
+
+                            "vol": 775,
+                            "width": 14.4,
+                            "proj": 6.6,
+                            "code": "SHPB-775",
+                            "cohesivity": "BOOST"
+
+                        }
+                    ],
+                    "Moderate Plus Xtra": [
+                        {
+
+                            "vol": 115,
+                            "width": 8.3,
+                            "proj": 3.1,
+                            "code": "SMPX-115",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 130,
+                            "width": 8.9,
+                            "proj": 3.1,
+                            "code": "SMPX-130",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 160,
+                            "width": 9.5,
+                            "proj": 3.3,
+                            "code": "SMPX-160",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 190,
+                            "width": 10.0,
+                            "proj": 3.4,
+                            "code": "SMPX-190",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 215,
+                            "width": 10.4,
+                            "proj": 3.6,
+                            "code": "SMPX-215",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 240,
+                            "width": 10.8,
+                            "proj": 3.7,
+                            "code": "SMPX-240",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 270,
+                            "width": 11.4,
+                            "proj": 3.8,
+                            "code": "SMPX-270",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 295,
+                            "width": 11.5,
+                            "proj": 4.0,
+                            "code": "SMPX-295",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 325,
+                            "width": 11.9,
+                            "proj": 4.1,
+                            "code": "SMPX-325",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 350,
+                            "width": 12.3,
+                            "proj": 4.1,
+                            "code": "SMPX-350",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 370,
+                            "width": 12.6,
+                            "proj": 4.1,
+                            "code": "SMPX-370",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 405,
+                            "width": 12.7,
+                            "proj": 4.4,
+                            "code": "SMPX-405",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 440,
+                            "width": 13.1,
+                            "proj": 4.5,
+                            "code": "SMPX-440",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 465,
+                            "width": 13.3,
+                            "proj": 4.7,
+                            "code": "SMPX-465",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 490,
+                            "width": 13.6,
+                            "proj": 4.7,
+                            "code": "SMPX-490",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 525,
+                            "width": 13.9,
+                            "proj": 4.7,
+                            "code": "SMPX-525",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 545,
+                            "width": 14.0,
+                            "proj": 4.9,
+                            "code": "SMPX-545",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 560,
+                            "width": 14.3,
+                            "proj": 4.8,
+                            "code": "SMPX-560",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 605,
+                            "width": 14.5,
+                            "proj": 5.1,
+                            "code": "SMPX-605",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 630,
+                            "width": 14.7,
+                            "proj": 5.1,
+                            "code": "SMPX-630",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 645,
+                            "width": 14.9,
+                            "proj": 5.1,
+                            "code": "SMPX-645",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 685,
+                            "width": 15.3,
+                            "proj": 5.2,
+                            "code": "SMPX-685",
+                            "cohesivity": "Xtra"
+
+                        }
+                    ],
+                    "Moderate High Xtra": [
+                        {
+
+                            "vol": 130,
+                            "width": 8.4,
+                            "proj": 3.5,
+                            "code": "SMHX-130",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 150,
+                            "width": 8.8,
+                            "proj": 3.7,
+                            "code": "SMHX-150",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 170,
+                            "width": 9.1,
+                            "proj": 3.8,
+                            "code": "SMHX-170",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 185,
+                            "width": 9.5,
+                            "proj": 3.9,
+                            "code": "SMHX-185",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 210,
+                            "width": 9.8,
+                            "proj": 4.1,
+                            "code": "SMHX-210",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 230,
+                            "width": 10.1,
+                            "proj": 4.2,
+                            "code": "SMHX-230",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 255,
+                            "width": 10.5,
+                            "proj": 4.3,
+                            "code": "SMHX-255",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 280,
+                            "width": 10.8,
+                            "proj": 4.4,
+                            "code": "SMHX-280",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 310,
+                            "width": 11.1,
+                            "proj": 4.6,
+                            "code": "SMHX-310",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 330,
+                            "width": 11.4,
+                            "proj": 4.7,
+                            "code": "SMHX-330",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 350,
+                            "width": 11.6,
+                            "proj": 4.8,
+                            "code": "SMHX-350",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 375,
+                            "width": 11.9,
+                            "proj": 4.9,
+                            "code": "SMHX-375",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 400,
+                            "width": 12.1,
+                            "proj": 4.9,
+                            "code": "SMHX-400",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 430,
+                            "width": 12.5,
+                            "proj": 5.1,
+                            "code": "SMHX-430",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 470,
+                            "width": 12.8,
+                            "proj": 5.2,
+                            "code": "SMHX-470",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 500,
+                            "width": 13.1,
+                            "proj": 5.3,
+                            "code": "SMHX-500",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 545,
+                            "width": 13.4,
+                            "proj": 5.5,
+                            "code": "SMHX-545",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 580,
+                            "width": 13.8,
+                            "proj": 5.5,
+                            "code": "SMHX-580",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 630,
+                            "width": 14.2,
+                            "proj": 5.7,
+                            "code": "SMHX-630",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 700,
+                            "width": 14.6,
+                            "proj": 5.9,
+                            "code": "SMHX-700",
+                            "cohesivity": "Xtra"
+
+                        }
+                    ],
+                    "High Profile Xtra": [
+                        {
+
+                            "vol": 150,
+                            "width": 8.3,
+                            "proj": 4.1,
+                            "code": "SHPX-150",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 180,
+                            "width": 8.8,
+                            "proj": 4.4,
+                            "code": "SHPX-180",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 200,
+                            "width": 9.2,
+                            "proj": 4.5,
+                            "code": "SHPX-200",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 235,
+                            "width": 9.5,
+                            "proj": 4.9,
+                            "code": "SHPX-235",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 260,
+                            "width": 9.9,
+                            "proj": 5.0,
+                            "code": "SHPX-260",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 285,
+                            "width": 10.3,
+                            "proj": 5.0,
+                            "code": "SHPX-285",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 335,
+                            "width": 10.7,
+                            "proj": 5.4,
+                            "code": "SHPX-335",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 355,
+                            "width": 11.0,
+                            "proj": 5.5,
+                            "code": "SHPX-355",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 380,
+                            "width": 11.3,
+                            "proj": 5.5,
+                            "code": "SHPX-380",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 415,
+                            "width": 11.5,
+                            "proj": 5.8,
+                            "code": "SHPX-415",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 450,
+                            "width": 11.9,
+                            "proj": 5.9,
+                            "code": "SHPX-450",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 465,
+                            "width": 12.1,
+                            "proj": 5.8,
+                            "code": "SHPX-465",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 490,
+                            "width": 12.5,
+                            "proj": 5.8,
+                            "code": "SHPX-490",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 535,
+                            "width": 12.7,
+                            "proj": 6.0,
+                            "code": "SHPX-535",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 560,
+                            "width": 12.7,
+                            "proj": 6.3,
+                            "code": "SHPX-560",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 595,
+                            "width": 13.1,
+                            "proj": 6.3,
+                            "code": "SHPX-595",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 650,
+                            "width": 13.5,
+                            "proj": 6.5,
+                            "code": "SHPX-650",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 700,
+                            "width": 14.1,
+                            "proj": 6.5,
+                            "code": "SHPX-700",
+                            "cohesivity": "Xtra"
+
+                        },
+                        {
+
+                            "vol": 755,
+                            "width": 14.4,
+                            "proj": 6.7,
+                            "code": "SHPX-755",
+                            "cohesivity": "Xtra"
+
+                        }
+                    ],
+                    "Moderate Classic": [
+                        {
+
+                            "vol": 150,
+                            "width": 10.1,
+                            "proj": 2.8,
+                            "code": "350-7150 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 175,
+                            "width": 10.5,
+                            "proj": 3.1,
+                            "code": "350-7175 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 190,
+                            "width": 10.8,
+                            "proj": 3.3,
+                            "code": "350-7190 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 200,
+                            "width": 11.1,
+                            "proj": 3.4,
+                            "code": "350-7200 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 225,
+                            "width": 11.4,
+                            "proj": 3.6,
+                            "code": "350-7225 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 250,
+                            "width": 11.9,
+                            "proj": 3.9,
+                            "code": "350-7250 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 275,
+                            "width": 12.4,
+                            "proj": 4.1,
+                            "code": "350-7275 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 300,
+                            "width": 12.7,
+                            "proj": 4.3,
+                            "code": "350-7300 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 325,
+                            "width": 13.2,
+                            "proj": 4.5,
+                            "code": "350-7325 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 340,
+                            "width": 13.4,
+                            "proj": 3.2,
+                            "code": "350-7340 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 350,
+                            "width": 13.5,
+                            "proj": 4.7,
+                            "code": "350-7350 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 360,
+                            "width": 13.6,
+                            "proj": 3.3,
+                            "code": "350-7360 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 385,
+                            "width": 13.9,
+                            "proj": 3.3,
+                            "code": "350-7385 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 405,
+                            "width": 14.2,
+                            "proj": 3.4,
+                            "code": "350-7405 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 425,
+                            "width": 14.6,
+                            "proj": 3.4,
+                            "code": "350-7425 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 445,
+                            "width": 14.8,
+                            "proj": 3.5,
+                            "code": "350-7445 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 470,
+                            "width": 15.0,
+                            "proj": 3.5,
+                            "code": "350-7470 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 490,
+                            "width": 15.2,
+                            "proj": 3.7,
+                            "code": "350-7490 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 510,
+                            "width": 15.4,
+                            "proj": 3.7,
+                            "code": "350-7510 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 555,
+                            "width": 15.7,
+                            "proj": 3.8,
+                            "code": "350-7555 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 595,
+                            "width": 16.1,
+                            "proj": 3.8,
+                            "code": "350-7595 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 640,
+                            "width": 16.5,
+                            "proj": 3.9,
+                            "code": "350-7640 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 680,
+                            "width": 17.0,
+                            "proj": 3.9,
+                            "code": "350-7680 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 750,
+                            "width": 17.5,
+                            "proj": 4.0,
+                            "code": "350-7750 MC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 800,
+                            "width": 18.0,
+                            "proj": 4.1,
+                            "code": "350-8800 MC",
+                            "cohesivity": "Standard"
+
+                        }
+                    ],
+                    "High Profile": [
+                        {
+
+                            "vol": 125,
+                            "width": 8.3,
+                            "proj": 3.5,
+                            "code": "3501254 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 150,
+                            "width": 8.8,
+                            "proj": 3.7,
+                            "code": "3501504 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 175,
+                            "width": 9.3,
+                            "proj": 3.9,
+                            "code": "3501754 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 200,
+                            "width": 9.7,
+                            "proj": 4.0,
+                            "code": "3502004 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 225,
+                            "width": 10.1,
+                            "proj": 4.2,
+                            "code": "3502254 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 250,
+                            "width": 10.5,
+                            "proj": 4.3,
+                            "code": "3502504 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 275,
+                            "width": 10.8,
+                            "proj": 4.4,
+                            "code": "3502754 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 300,
+                            "width": 11.1,
+                            "proj": 4.5,
+                            "code": "3503004 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 325,
+                            "width": 11.4,
+                            "proj": 4.6,
+                            "code": "3503254 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 375,
+                            "width": 11.6,
+                            "proj": 5.6,
+                            "code": "350-7375 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 375,
+                            "width": 12.0,
+                            "proj": 4.8,
+                            "code": "3503754 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 400,
+                            "width": 11.9,
+                            "proj": 5.8,
+                            "code": "350-7400 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 400,
+                            "width": 12.2,
+                            "proj": 5.0,
+                            "code": "3504004 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 425,
+                            "width": 12.1,
+                            "proj": 6.0,
+                            "code": "350-7425 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 425,
+                            "width": 12.5,
+                            "proj": 5.0,
+                            "code": "3504254 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 450,
+                            "width": 12.5,
+                            "proj": 6.2,
+                            "code": "350-7450 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 450,
+                            "width": 12.8,
+                            "proj": 5.1,
+                            "code": "3504504 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 475,
+                            "width": 12.7,
+                            "proj": 6.5,
+                            "code": "350-7475 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 475,
+                            "width": 12.9,
+                            "proj": 5.3,
+                            "code": "3504754 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 500,
+                            "width": 13.1,
+                            "proj": 6.7,
+                            "code": "350-7500 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 500,
+                            "width": 13.2,
+                            "proj": 5.3,
+                            "code": "3505004 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 525,
+                            "width": 13.4,
+                            "proj": 6.9,
+                            "code": "350-7525 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 550,
+                            "width": 13.8,
+                            "proj": 7.1,
+                            "code": "350-7550 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 550,
+                            "width": 13.6,
+                            "proj": 5.5,
+                            "code": "3505504 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 575,
+                            "width": 14.2,
+                            "proj": 7.4,
+                            "code": "350-7575 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 600,
+                            "width": 14.6,
+                            "proj": 7.6,
+                            "code": "350-7600 HP",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 600,
+                            "width": 14.0,
+                            "proj": 5.6,
+                            "code": "3506004 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 650,
+                            "width": 14.4,
+                            "proj": 5.7,
+                            "code": "3506504 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 700,
+                            "width": 14.8,
+                            "proj": 5.8,
+                            "code": "3507004 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 750,
+                            "width": 15.1,
+                            "proj": 5.9,
+                            "code": "3507504 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 800,
+                            "width": 15.5,
+                            "proj": 6.0,
+                            "code": "3508004 BC",
+                            "cohesivity": "Standard"
+
+                        }
+                    ],
+                    "Ultra High Profile": [
+                        {
+
+                            "vol": 135,
+                            "width": 7.8,
+                            "proj": 4.1,
+                            "code": "3505135 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 160,
+                            "width": 8.2,
+                            "proj": 4.3,
+                            "code": "3505160 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 185,
+                            "width": 8.4,
+                            "proj": 4.4,
+                            "code": "3505185 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 215,
+                            "width": 8.7,
+                            "proj": 4.5,
+                            "code": "3505215 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 240,
+                            "width": 9.0,
+                            "proj": 4.7,
+                            "code": "3505240 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 270,
+                            "width": 9.3,
+                            "proj": 4.8,
+                            "code": "3505270 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 295,
+                            "width": 9.7,
+                            "proj": 5.0,
+                            "code": "3505295 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 320,
+                            "width": 9.8,
+                            "proj": 5.1,
+                            "code": "3505320 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 350,
+                            "width": 10.1,
+                            "proj": 5.2,
+                            "code": "3505350 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 375,
+                            "width": 10.4,
+                            "proj": 5.3,
+                            "code": "3505375 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 400,
+                            "width": 10.6,
+                            "proj": 5.4,
+                            "code": "3505400 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 400,
+                            "width": 10.6,
+                            "proj": 5.4,
+                            "code": "3505400 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 430,
+                            "width": 10.9,
+                            "proj": 5.6,
+                            "code": "3505430 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 430,
+                            "width": 10.9,
+                            "proj": 5.6,
+                            "code": "3505430 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 455,
+                            "width": 11.2,
+                            "proj": 5.7,
+                            "code": "3505455 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 455,
+                            "width": 11.2,
+                            "proj": 5.7,
+                            "code": "3505455 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 480,
+                            "width": 11.4,
+                            "proj": 5.8,
+                            "code": "3505480 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 480,
+                            "width": 11.4,
+                            "proj": 5.8,
+                            "code": "3505480 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 535,
+                            "width": 12.0,
+                            "proj": 6.1,
+                            "code": "3505535 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 535,
+                            "width": 12.0,
+                            "proj": 6.1,
+                            "code": "3505535 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 590,
+                            "width": 12.5,
+                            "proj": 6.3,
+                            "code": "3505590 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 590,
+                            "width": 12.5,
+                            "proj": 6.3,
+                            "code": "3505590 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 650,
+                            "width": 12.9,
+                            "proj": 6.4,
+                            "code": "3505650 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 650,
+                            "width": 12.9,
+                            "proj": 6.4,
+                            "code": "3505650 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 700,
+                            "width": 13.3,
+                            "proj": 6.5,
+                            "code": "3505700 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 700,
+                            "width": 13.3,
+                            "proj": 6.5,
+                            "code": "3505700 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 750,
+                            "width": 13.7,
+                            "proj": 6.6,
+                            "code": "3505750 BC",
+                            "cohesivity": "Standard"
+
+                        }
+                    ],
+                    "Moderate Plus Profile": [
+                        {
+
+                            "vol": 350,
+                            "width": 12.5,
+                            "proj": 3.9,
+                            "code": "3503501 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 375,
+                            "width": 12.8,
+                            "proj": 4.0,
+                            "code": "3503751 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 400,
+                            "width": 13.1,
+                            "proj": 4.0,
+                            "code": "3504001 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 425,
+                            "width": 13.5,
+                            "proj": 4.1,
+                            "code": "3504251 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 450,
+                            "width": 13.6,
+                            "proj": 4.2,
+                            "code": "3504501 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 475,
+                            "width": 14.0,
+                            "proj": 4.2,
+                            "code": "3504751 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 500,
+                            "width": 14.1,
+                            "proj": 4.3,
+                            "code": "3505001 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 525,
+                            "width": 14.5,
+                            "proj": 4.4,
+                            "code": "3505251 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 550,
+                            "width": 14.6,
+                            "proj": 4.5,
+                            "code": "3505501 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 575,
+                            "width": 14.9,
+                            "proj": 4.6,
+                            "code": "3505751 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 650,
+                            "width": 15.4,
+                            "proj": 4.8,
+                            "code": "3506501 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 700,
+                            "width": 15.8,
+                            "proj": 4.9,
+                            "code": "3507001 BC",
+                            "cohesivity": "Standard"
+
+                        },
+                        {
+
+                            "vol": 750,
+                            "width": 16.3,
+                            "proj": 4.9,
+                            "code": "3507501 BC",
+                            "cohesivity": "Standard"
+
+                        }
+                    ]
+
+                },
+                baseWidthFormula: (volume, profile) => {
+                    // Fallback formula if not in catalog
+                    return Math.sqrt(volume / (Math.PI * 1.0)) * 2;
+                }
+            },
+            'Motiva': {
+                profiles: ['Mini', 'Demi', 'Full', 'Corse'],
+                cohesivities: ['Motiva Ergonomix', 'Motiva SmoothSilk (Round)'],
+                // Catalog lookup map: Code prefix -> Cohesivity
+                catalogMapping: {
+                    'RSM': { cohesivity: 'Motiva SmoothSilk (Round)', profile: 'Mini' },
+                    'RSD': { cohesivity: 'Motiva SmoothSilk (Round)', profile: 'Demi' },
+                    'RSF': { cohesivity: 'Motiva SmoothSilk (Round)', profile: 'Full' },
+                    'RSC': { cohesivity: 'Motiva SmoothSilk (Round)', profile: 'Corse' },
+                    'ERSM': { cohesivity: 'Motiva Ergonomix', profile: 'Mini' },
+                    'ERSD': { cohesivity: 'Motiva Ergonomix', profile: 'Demi' },
+                    'ERSF': { cohesivity: 'Motiva Ergonomix', profile: 'Full' },
+                    'ERSC': { cohesivity: 'Motiva Ergonomix', profile: 'Corse' }
+                },
+                surfaceTypes: {
+                    'Motiva SmoothSilk (Round)': { texture: 'SilkSurface (Nano-texture)', shape: 'Round', note: 'Off-label reconstruction' },
+                    'Motiva Ergonomix': { texture: 'SilkSurface (Nano-texture)', shape: 'Ergonomic', note: 'Off-label reconstruction' }
+                },
+                // Exact dimensions from catalog (Volume -> { width, proj, code })
+                // Helper to generate code: prefix + volume + 'Q'
+                catalog: {
+                    'Mini': [
+                        { vol: 105, width: 8.5, proj: 2.1, code: 'Q' }, { vol: 120, width: 9.0, proj: 2.3, code: 'Q' },
+                        { vol: 135, width: 9.5, proj: 2.4, code: 'Q' }, { vol: 150, width: 10.0, proj: 2.6, code: 'Q' },
+                        { vol: 165, width: 10.5, proj: 2.7, code: 'Q' }, { vol: 180, width: 11.0, proj: 2.9, code: 'Q' },
+                        { vol: 195, width: 11.5, proj: 3.0, code: 'Q' }, { vol: 210, width: 12.0, proj: 3.2, code: 'Q' },
+                        { vol: 225, width: 12.5, proj: 3.3, code: 'Q' }, { vol: 240, width: 13.0, proj: 3.5, code: 'Q' },
+                        { vol: 255, width: 13.5, proj: 3.6, code: 'Q' }, { vol: 270, width: 14.0, proj: 3.8, code: 'Q' },
+                        { vol: 285, width: 14.5, proj: 3.9, code: 'Q' }, { vol: 300, width: 15.0, proj: 4.1, code: 'Q' }
+                    ],
+                    'Demi': [
+                        { vol: 145, width: 9.0, proj: 2.8, code: 'Q' }, { vol: 160, width: 9.5, proj: 3.0, code: 'Q' },
+                        { vol: 175, width: 10.0, proj: 3.1, code: 'Q' }, { vol: 190, width: 10.5, proj: 3.3, code: 'Q' },
+                        { vol: 210, width: 11.0, proj: 3.5, code: 'Q' }, { vol: 230, width: 11.5, proj: 3.6, code: 'Q' },
+                        { vol: 250, width: 12.0, proj: 3.8, code: 'Q' }, { vol: 270, width: 12.5, proj: 3.9, code: 'Q' },
+                        { vol: 295, width: 13.0, proj: 4.1, code: 'Q' }, { vol: 315, width: 13.5, proj: 4.2, code: 'Q' },
+                        { vol: 340, width: 14.0, proj: 4.4, code: 'Q' }, { vol: 365, width: 14.5, proj: 4.5, code: 'Q' },
+                        { vol: 390, width: 15.0, proj: 4.7, code: 'Q' }
+                    ],
+                    'Full': [
+                        { vol: 190, width: 9.0, proj: 3.3, code: 'Q' }, { vol: 210, width: 9.5, proj: 3.5, code: 'Q' },
+                        { vol: 230, width: 10.0, proj: 3.7, code: 'Q' }, { vol: 250, width: 10.5, proj: 3.9, code: 'Q' },
+                        { vol: 280, width: 11.0, proj: 4.1, code: 'Q' }, { vol: 305, width: 11.5, proj: 4.3, code: 'Q' },
+                        { vol: 335, width: 12.0, proj: 4.5, code: 'Q' }, { vol: 365, width: 12.5, proj: 4.7, code: 'Q' },
+                        { vol: 395, width: 13.0, proj: 4.9, code: 'Q' }, { vol: 430, width: 13.5, proj: 5.1, code: 'Q' },
+                        { vol: 465, width: 14.0, proj: 5.3, code: 'Q' }, { vol: 500, width: 14.5, proj: 5.5, code: 'Q' },
+                        { vol: 535, width: 15.0, proj: 5.7, code: 'Q' }
+                    ],
+                    'Corse': [
+                        { vol: 265, width: 9.0, proj: 4.2, code: 'Q' }, { vol: 290, width: 9.5, proj: 4.4, code: 'Q' },
+                        { vol: 315, width: 10.0, proj: 4.7, code: 'Q' }, { vol: 345, width: 10.5, proj: 4.9, code: 'Q' },
+                        { vol: 385, width: 11.0, proj: 5.2, code: 'Q' }, { vol: 420, width: 11.5, proj: 5.5, code: 'Q' },
+                        { vol: 460, width: 12.0, proj: 5.7, code: 'Q' }, { vol: 500, width: 12.5, proj: 6.0, code: 'Q' },
+                        { vol: 545, width: 13.0, proj: 6.3, code: 'Q' }, { vol: 590, width: 13.5, proj: 6.5, code: 'Q' },
+                        { vol: 635, width: 14.0, proj: 6.8, code: 'Q' }, { vol: 685, width: 14.5, proj: 7.1, code: 'Q' },
+                        { vol: 735, width: 15.0, proj: 7.3, code: 'Q' }
+                    ]
+                },
+                ranges: {
+                    'Mini': { min: 105, max: 300, projection: 1.2 },
+                    'Demi': { min: 145, max: 390, projection: 1.5 },
+                    'Full': { min: 190, max: 535, projection: 1.8 },
+                    'Corse': { min: 265, max: 735, projection: 2.2 }
+                },
+                baseWidthFormula: (volume, profile) => {
+                    // Fallback formula if exact volume not found
+                    const projectionFactors = {
+                        'Mini': 1.05,
+                        'Demi': 0.95,
+                        'Full': 0.85,
+                        'Corse': 0.72
+                    };
+                    return Math.sqrt(volume / (Math.PI * projectionFactors[profile])) * 2;
+                }
+            },
+            'Sientra': {
+                profiles: ['Low', 'Moderate', 'Moderate Plus', 'High'],
+                cohesivities: ['Round Smooth', 'Classic (HSC)', 'Opus (HSC+)'],
+                surfaceTypes: {
+                    'Classic (HSC)': { texture: 'True Texture', shape: 'Round/Anatomic', warning: 'Textured Surface' },
+                    'Opus (HSC+)': { texture: 'True Texture', shape: 'Round/Anatomic', warning: 'Textured Surface' },
+                    'Round Smooth': { texture: 'Smooth', shape: 'Round' }
+                },
+                ranges: {
+                    'Low': { min: 120, max: 800, projection: 1.0 },
+                    'Moderate': { min: 120, max: 800, projection: 1.35 },
+                    'Moderate Plus': { min: 155, max: 800, projection: 1.6 },
+                    'High': { min: 195, max: 800, projection: 1.95 }
+                },
+                baseWidthFormula: (volume, profile) => {
+                    const projectionFactors = {
+                        'Low': 1.1,
+                        'Moderate': 1.0,
+                        'Moderate Plus': 0.88,
+                        'High': 0.78
+                    };
+                    return Math.sqrt(volume / (Math.PI * projectionFactors[profile])) * 2;
+                }
+            },
+            'Ideal Implant': {
+                profiles: ['Standard'],
+                cohesivities: ['Structured Saline (Dual-Chamber)'],
+                surfaceTypes: {
+                    'Structured Saline (Dual-Chamber)': { texture: 'Smooth', shape: 'Round' }
+                },
+                ranges: {
+                    'Standard': { min: 125, max: 800, projection: 1.4 }
+                },
+                baseWidthFormula: (volume, profile) => {
+                    return Math.sqrt(volume / (Math.PI * 1.0)) * 2;
+                }
+            }
+        };
+
+        const getImplantDimensions = (manufacturer, profile, volume, cohesivity) => {
+            if (!manufacturer || !profile || !volume) return null;
+
+            // Check Built-in Database
+            const data = IMPLANT_DATABASE[manufacturer];
+            if (!data) return null;
+
+            if (data.catalog && data.catalog[profile]) {
+                const item = data.catalog[profile].find(i => i.vol === parseInt(volume));
+                if (item) {
+                    return { width: item.width, projection: item.proj, isExact: true };
+                }
+            }
+
+            return null; // No estimation
+        };
+
+        const generateCatalogCode = (manufacturer, profile, volume, cohesivity) => {
+            if (!volume) return '';
+
+            if (manufacturer === 'Allergan/Natrelle') {
+                // S/T + R/S/C + L/M/F/X + -Vol
+                const gelMap = {
+                    'Inspira Responsive': 'R',
+                    'Inspira Soft (SoftTouch)': 'S',
+                    'Inspira Cohesive': 'C',
+                    'Style 410 (Gummy Bear)': '410'
+                };
+                const profileMap = {
+                    'Low': 'L', 'Low Plus': 'LP', 'Moderate': 'M', 'Moderate Plus': 'M', 'Full': 'F', 'Extra Full': 'X'
+                };
+
+                // Assuming Smooth for now unless 'Texture' in cohesivity name
+                const shell = cohesivity.includes('Textured') ? 'T' : 'S';
+                const gel = gelMap[cohesivity] || '?';
+                const prof = profileMap[profile] || '?';
+
+                if (gel === '?' || prof === '?') return '';
+
+                if (gel === '410') return `410-${prof}-${volume}`;
+                return `${shell}${gel}${prof}-${volume}`;
+            }
+
+            if (manufacturer === 'Motiva') {
+                // ERS...Q (Ergonomix) vs RS...+Q (SilkSurface)
+                // Logic: ERS -> Q, RS -> +Q
+                const prefix = cohesivity.includes('Ergonomix') ? 'ERS' : 'RS';
+                const suffix = cohesivity.includes('Ergonomix') ? 'Q' : '+Q';
+                const profileMap = { 'Mini': 'M', 'Demi': 'D', 'Full': 'F', 'Corse': 'C' };
+                const prof = profileMap[profile] || '?';
+
+                if (prof === '?') return '';
+
+                return `${prefix}${prof}-${volume}${suffix}`;
+            }
+
+            if (manufacturer === 'Mentor') {
+                const mentorData = IMPLANT_DATABASE['Mentor'];
+                if (mentorData && mentorData.catalog && mentorData.catalog[profile]) {
+                    // Find the entry with matching volume
+                    // Note: Cohesivity is handled by profile mapping in Mentor logic (e.g. BOOST vs Standard)
+                    // but we can just look up by volume in the profile list
+                    const match = mentorData.catalog[profile].find(item => item.vol === parseInt(volume));
+                    if (match) {
+                        return match.code;
+                    }
+                }
+                return '';
+            }
+
+            return '';
+        };
+
+        const ImplantSelector = () => {
+            // Current implant state
+            const [currentManufacturer, setCurrentManufacturer] = useState('Allergan/Natrelle');
+            const [currentVolume, setCurrentVolume] = useState('');
+            const [currentProfile, setCurrentProfile] = useState('Moderate');
+            const [currentCohesivity, setCurrentCohesivity] = useState('Highly Cohesive');
+            const [catalogCode, setCatalogCode] = useState('');
+
+            // Patient measurements
+            const [baseWidth, setBaseWidth] = useState('');
+            const [chestCircumference, setChestCircumference] = useState('');
+
+            // Patient goals
+            const [goalSize, setGoalSize] = useState('same');
+            const [goalProjection, setGoalProjection] = useState('same');
+            const [goalUpperPole, setGoalUpperPole] = useState('moderate');
+            const [desiredFeel, setDesiredFeel] = useState('natural');
+
+            // Preferences
+            const [preferredManufacturers, setPreferredManufacturers] = useState({
+                'Allergan/Natrelle': true,
+                'Mentor': true,
+                'Motiva': true
+            });
+
+            // Clinical context
+            const [clinicalContext, setClinicalContext] = useState('revision');
+
+            // Surface preferences
+            const [surfacePreference, setSurfacePreference] = useState('all');
+
+            // Sync catalog code input when manual selectors change
+            useEffect(() => {
+                const code = generateCatalogCode(currentManufacturer, currentProfile, currentVolume, currentCohesivity);
+                // Only update if it's a valid-ish code (not N/A) and doesn't match current input (to avoid cursor weirdness if manageable)
+                // Actually, just updating it is fine as long as it matches.
+                if (code !== 'N/A') {
+                    setCatalogCode(code);
+                }
+            }, [currentManufacturer, currentProfile, currentVolume, currentCohesivity]);
+
+            const findImplantByCode = (code) => {
+                const upperCode = code.toUpperCase().trim();
+
+                // Search ALL Manufacturers in Database
+                for (const [manName, manData] of Object.entries(IMPLANT_DATABASE)) {
+                    if (manData.catalog) {
+                        for (const [profile, items] of Object.entries(manData.catalog)) {
+                            const match = items.find(item => item.code && item.code.trim() === upperCode);
+                            if (match) {
+                                // Map generic cohesivity names to full names for Mentor
+                                let cohesivity = match.cohesivity;
+                                if (manName === 'Mentor') {
+                                    if (cohesivity === 'Standard') cohesivity = 'MemoryGel';
+                                    if (cohesivity === 'Xtra') cohesivity = 'MemoryGel Xtra';
+                                    if (cohesivity === 'BOOST') cohesivity = 'MemoryGel BOOST';
+                                }
+
+                                return {
+                                    manufacturer: manName,
+                                    profile: profile,
+                                    volume: match.vol,
+                                    cohesivity: cohesivity || manData.cohesivities[0]
+                                };
+                            }
+                        }
+                    }
+                }
+                return null;
+            };
+
+            const [lookupStatus, setLookupStatus] = useState(null);
+
+            const handleCatalogLookup = (code) => {
+                setCatalogCode(code);
+                const upperCode = code.toUpperCase().trim();
+                if (!upperCode) {
+                    setLookupStatus(null);
+                    return;
+                }
+
+                // 1. Direct Database Lookup (Universal Search)
+                const directMatch = findImplantByCode(upperCode);
+                if (directMatch) {
+                    setCurrentManufacturer(directMatch.manufacturer);
+                    setCurrentProfile(directMatch.profile);
+                    setCurrentVolume(directMatch.volume.toString());
+                    setCurrentCohesivity(directMatch.cohesivity);
+                    setLookupStatus(`✅ Found: ${directMatch.manufacturer} ${directMatch.volume}cc ${directMatch.profile}`);
+                    return;
+                }
+
+                // 2. Allergan Regex Fallback
+                const allerganMatch = upperCode.match(/^([ST])([RSC])(M\+?|F|X|L|LP)-?(\d+)$/);
+                if (allerganMatch) {
+                    const [_, shell, gel, profileCode, volume] = allerganMatch;
+                    const gelMap = { 'R': 'Inspira Responsive', 'S': 'Inspira Soft (SoftTouch)', 'C': 'Inspira Cohesive' };
+                    const profileMap = { 'L': 'Low', 'LP': 'Low Plus', 'M': 'Moderate', 'M+': 'Moderate Plus', 'F': 'Full', 'X': 'Extra Full' };
+
+                    const mName = 'Allergan/Natrelle';
+                    const pName = profileMap[profileCode];
+                    const vNum = parseInt(volume);
+                    const cName = gelMap[gel];
+
+                    // Validate that this volume actually exists in the catalog
+                    const allerganData = IMPLANT_DATABASE[mName];
+                    if (allerganData && allerganData.catalog && allerganData.catalog[pName]) {
+                        const volumeExists = allerganData.catalog[pName].some(item => item.vol === vNum);
+                        if (!volumeExists) {
+                            setLookupStatus(`⚠️ Code format valid, but ${vNum}cc not available in ${pName} profile`);
+                            return;
+                        }
+                    }
+
+                    setCurrentManufacturer(mName);
+                    setCurrentVolume(vNum.toString());
+                    setCurrentCohesivity(cName);
+                    setCurrentProfile(pName);
+                    setLookupStatus(`✅ Recognized Code: ${mName} ${vNum}cc ${pName}`);
+                    return;
+                }
+
+                // 3. Motiva Regex Fallback
+                const motivaMatch = upperCode.match(/^(ERS|RS)([MDFC])-?(\d+)Q?$/);
+                if (motivaMatch) {
+                    const [_, prefix, profileCode, volume] = motivaMatch;
+                    const profileMap = { 'M': 'Mini', 'D': 'Demi', 'F': 'Full', 'C': 'Corse' };
+                    const mName = 'Motiva';
+                    const pName = profileMap[profileCode];
+                    const vNum = parseInt(volume);
+                    const cName = prefix === 'ERS' ? 'Motiva Ergonomix' : 'Motiva SmoothSilk (Round)';
+
+                    // Validate that this volume actually exists in the catalog
+                    const motivaData = IMPLANT_DATABASE[mName];
+                    if (motivaData && motivaData.catalog && motivaData.catalog[pName]) {
+                        const volumeExists = motivaData.catalog[pName].some(item => item.vol === vNum);
+                        if (!volumeExists) {
+                            setLookupStatus(`⚠️ Code format valid, but ${vNum}cc not available in ${pName} profile`);
+                            return;
+                        }
+                    }
+
+                    setCurrentManufacturer(mName);
+                    setCurrentVolume(vNum.toString());
+                    setCurrentProfile(pName);
+                    setCurrentCohesivity(cName);
+                    setLookupStatus(`✅ Recognized Code: ${mName} ${vNum}cc ${pName}`);
+                    return;
+                }
+
+                setLookupStatus('Searching...');
+            };
+
+
+
+            const currentDimensions = useMemo(() => {
+                return getImplantDimensions(currentManufacturer, currentProfile, currentVolume, currentCohesivity);
+            }, [currentManufacturer, currentProfile, currentVolume, currentCohesivity]);
+
+
+
+            const calculateRecommendations = () => {
+                const measuredBaseWidth = parseFloat(baseWidth) || null;
+                if (!currentVolume && !measuredBaseWidth) return [];
+
+                const results = [];
+                const baseVolume = parseFloat(currentVolume);
+
+                // Calculate current implant characteristics
+                const currentData = IMPLANT_DATABASE[currentManufacturer];
+                const currentBaseWidth = measuredBaseWidth || currentData.baseWidthFormula(baseVolume, currentProfile);
+                const currentProjectionFactor = currentData.ranges[currentProfile].projection;
+
+                // Determine target volume based on goals
+                let targetVolume = baseVolume || 0;
+                if (baseVolume) {
+                    if (goalSize === 'larger') targetVolume = baseVolume * 1.2;
+                    else if (goalSize === 'smaller') targetVolume = baseVolume * 0.85;
+                } else if (measuredBaseWidth) {
+                    // Estimate target volume from base width using current profile projection (generic)
+                    // Vol = (Width/2)^2 * PI * ProjFactor / 4? No, Vol = Width^2 * PI * ProjFact / 4 (Wait, width formula above is inverse)
+                    // Width = sqrt(Vol / (PI*Proj)) * 2
+                    // Width/2 = sqrt(Vol / (PI*Proj))
+                    // (Width/2)^2 = Vol / (PI*Proj)
+                    // Vol = (Width/2)^2 * PI * Proj
+                    if (currentProjectionFactor) {
+                        targetVolume = Math.pow(measuredBaseWidth / 2, 2) * Math.PI * currentProjectionFactor;
+                    } else {
+                        // Fallback generic projection factor ~1.5
+                        targetVolume = Math.pow(measuredBaseWidth / 2, 2) * Math.PI * 1.5;
+                    }
+                }
+
+                // Determine target projection
+                let targetProjectionFactor = currentProjectionFactor;
+                if (goalProjection === 'more') targetProjectionFactor = currentProjectionFactor * 1.15;
+                else if (goalProjection === 'less') targetProjectionFactor = currentProjectionFactor * 0.90;
+
+                // Search across all manufacturers
+                Object.entries(IMPLANT_DATABASE).forEach(([manufacturer, data]) => {
+                    if (!preferredManufacturers[manufacturer]) return;
+
+                    data.profiles.forEach(profile => {
+                        const profileData = data.ranges[profile];
+                        const profileProjection = profileData.projection;
+
+                        // Find candidates based on available criteria
+                        const candidates = [];
+
+                        if (data.catalog && data.catalog[profile]) {
+                            const catalogItems = data.catalog[profile];
+                            catalogItems.forEach(item => {
+                                let isCandidate = false;
+
+                                // Scenario 1: Filter by Volume (if provided)
+                                if (baseVolume) {
+                                    // Strict filtering for directional goals
+                                    if (goalSize === 'larger' && item.vol <= baseVolume) return;
+                                    if (goalSize === 'smaller' && item.vol >= baseVolume) return;
+
+                                    if (item.vol >= targetVolume - 100 && item.vol <= targetVolume + 100) {
+                                        isCandidate = true;
+                                    }
+                                }
+                                // Scenario 2: Filter by Base Width (if volume missing but width provided)
+                                else if (measuredBaseWidth && item.width) {
+                                    // Look for implants within +/- 1.0 cm of target width
+                                    if (Math.abs(item.width - measuredBaseWidth) <= 1.0) {
+                                        isCandidate = true;
+                                    }
+                                }
+
+                                if (isCandidate) {
+                                    candidates.push(item);
+                                }
+                            });
+                        }
+
+                        // Process Candidates
+                        candidates.forEach(item => {
+                            const volume = item.vol;
+                            const implantBaseWidth = item.width;
+                            const exactProjection = item.proj;
+
+                            // Filter available cohesivities based on surface preference
+                            let validCohesivities = data.cohesivities.filter(c => {
+                                const surfaceInfo = data.surfaceTypes[c];
+                                const isSmooth = surfaceInfo.texture.toLowerCase().includes('smooth') &&
+                                    !surfaceInfo.texture.includes('Nano-texture') &&
+                                    !surfaceInfo.texture.includes('SilkSurface');
+                                const isNanoTexture = surfaceInfo.texture.includes('Nano-texture') ||
+                                    surfaceInfo.texture.includes('SilkSurface');
+                                const isMacroTextured = surfaceInfo.warning !== undefined;
+
+                                if (surfacePreference === 'smooth-only' && !isSmooth) return false;
+                                if (surfacePreference === 'smooth-and-nano' && isMacroTextured) return false;
+                                if (surfacePreference === 'no-textured' && (isMacroTextured || isNanoTexture)) return false;
+                                return true;
+                            });
+
+                            if (validCohesivities.length === 0) return;
+
+                            // Calculate match score
+                            let score = 100;
+
+                            if (baseVolume) {
+                                // Scoring for Volume-based search
+                                const volumeDiff = Math.abs(volume - targetVolume);
+                                score -= (volumeDiff / targetVolume) * 40;
+
+                                // Base width match (30%)
+                                if (measuredBaseWidth) {
+                                    const baseWidthDiff = Math.abs(implantBaseWidth - measuredBaseWidth);
+                                    score -= (baseWidthDiff / measuredBaseWidth) * 30;
+                                } else if (currentBaseWidth) { // If no measured, compare to current implant's estimated width
+                                    const baseWidthDiff = Math.abs(implantBaseWidth - currentBaseWidth);
+                                    score -= (baseWidthDiff / currentBaseWidth) * 30;
+                                } else { // If no base width info at all, reduce weight
+                                    score -= 15; // Penalty for missing base width info
+                                }
+                            } else if (measuredBaseWidth) {
+                                // Scoring for Width-based search
+                                // Prioritize width heavily (70%)
+                                const baseWidthDiff = Math.abs(implantBaseWidth - measuredBaseWidth);
+                                score -= (Math.abs(baseWidthDiff) / measuredBaseWidth) * 70;
+
+                                // Remove Projection penalty if it's too harsh? Or keep it low?
+                                // Let's keep projection at 20%
+                            }
+
+                            // Projection match - only penalize if using profile projection (no exact data)
+                            // When we have exact catalog data (width, proj, vol), the projection is already
+                            // factored into the vol/width relationship, so we don't need to score it separately
+                            if (exactProjection === 0) {
+                                // No exact projection data, use profile projection factor for comparison
+                                if (baseVolume) {
+                                    const pDiff = Math.abs(profileProjection - targetProjectionFactor);
+                                    score -= (pDiff / targetProjectionFactor) * 30;
+                                } else if (measuredBaseWidth) {
+                                    const pDiff = Math.abs(profileProjection - targetProjectionFactor);
+                                    score -= (pDiff / targetProjectionFactor) * 20;
+                                }
+                            }
+                            // If exactProjection > 0, we have exact catalog data - don't penalize
+                            // because the projection is already reflected in the vol/width match
+
+                            // Bonus for matching current manufacturer (if set and not just default/optional)
+                            if (currentManufacturer && manufacturer === currentManufacturer && baseVolume) {
+                                score += 5;
+                            }
+
+                            if (score > 50) {
+                                // Find the best matching cohesivity from VALID ones
+                                let bestCohesivity = validCohesivities[0];
+
+                                // Try to match preference if valid
+                                if (desiredFeel === 'soft' && validCohesivities.includes(data.cohesivities[0])) {
+                                    bestCohesivity = validCohesivities[0];
+                                } else if (desiredFeel === 'firm') {
+                                    bestCohesivity = validCohesivities[validCohesivities.length - 1];
+                                } else if (validCohesivities.includes(currentCohesivity)) {
+                                    bestCohesivity = currentCohesivity;
+                                }
+
+                                results.push({
+                                    manufacturer,
+                                    profile,
+                                    volume,
+                                    cohesivity: bestCohesivity,
+                                    surfaceInfo: data.surfaceTypes[bestCohesivity],
+                                    baseWidth: implantBaseWidth,
+                                    projection: exactProjection > 0 ? exactProjection : profileProjection,
+                                    isExactProjection: exactProjection > 0,
+                                    score: Math.max(0, Math.min(100, score)),
+                                    notes: generateNotes(
+                                        volume,
+                                        targetVolume,
+                                        exactProjection > 0 ? exactProjection : profileProjection,
+                                        targetProjectionFactor,
+                                        implantBaseWidth,
+                                        measuredBaseWidth || currentBaseWidth,
+                                        goalUpperPole,
+                                        desiredFeel
+                                    )
+                                });
+                            }
+                        });
+                    });
+                });
+
+                // Sort by score
+                return results.sort((a, b) => b.score - a.score).slice(0, 10);
+            };
+
+            const generateNotes = (volume, targetVolume, projection, targetProjection, baseWidth, targetBaseWidth, upperPole, feel) => {
+                const notes = [];
+
+                // Only add volume comparison if we have a target volume
+                if (targetVolume > 0) {
+                    const volumeDiff = ((volume - targetVolume) / targetVolume * 100).toFixed(0);
+                    if (Math.abs(volumeDiff) > 5) {
+                        notes.push(`${volumeDiff > 0 ? '+' : ''}${volumeDiff}% volume vs. target`);
+                    }
+                }
+
+                // Only add base width comparison if we have a target base width
+                if (targetBaseWidth > 0) {
+                    const baseWidthDiff = Math.abs(baseWidth - targetBaseWidth);
+                    if (baseWidthDiff > 0.5) {
+                        notes.push(`Base width ${baseWidthDiff.toFixed(1)}cm ${baseWidth > targetBaseWidth ? 'wider' : 'narrower'}`);
+                    }
+                }
+
+                return notes.length > 0 ? notes.join(' • ') : null;
+            };
+
+            const recommendations = useMemo(() => calculateRecommendations(),
+                [currentVolume, goalSize, goalProjection, currentManufacturer, currentProfile, currentCohesivity, baseWidth, goalUpperPole, desiredFeel, surfacePreference, preferredManufacturers]);
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🔬 Breast Implant Selection Tool</h1>
+                        <p>Evidence-based decision support for primary augmentation, revision, and reconstruction • FDA-approved implants (US) • Motiva included for off-label reconstruction</p>
+                    </div>
+
+                    <div className="main-grid">
+                        <div className="card">
+                            <h2>Current Implant Data</h2>
+
+                            <div className="form-section">
+                                <h3>Quick Lookup</h3>
+                                <div className="form-group">
+                                    <label>Catalog Code (e.g., SRM-300, SMPB-450)</label>
+                                    <input
+                                        type="text"
+                                        value={catalogCode}
+                                        onChange={(e) => handleCatalogLookup(e.target.value)}
+                                        placeholder="Enter code..."
+                                        className="catalog-input"
+                                    />
+                                    {lookupStatus && (
+                                        <div className={`lookup-status ${lookupStatus.includes('✅') ? 'success' : 'pending'}`}>
+                                            {lookupStatus}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="form-section">
+                                <h3>Implant Details</h3>
+                                <div className="two-col">
+                                    <div className="form-group">
+                                        <label>Manufacturer</label>
+                                        <select
+                                            value={currentManufacturer}
+                                            onChange={(e) => {
+                                                setCurrentManufacturer(e.target.value);
+                                                // Reset catalog code if manufacturer changes
+                                                setCatalogCode('');
+                                            }}
+                                        >
+                                            {Object.keys(IMPLANT_DATABASE)
+                                                .filter(mfr => mfr !== 'Sientra' && mfr !== 'Ideal Implant')
+                                                .map(mfr => (
+                                                    <option key={mfr} value={mfr}>{mfr}</option>
+                                                ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Profile</label>
+                                        <select
+                                            value={currentProfile}
+                                            onChange={(e) => setCurrentProfile(e.target.value)}
+                                        >
+                                            {IMPLANT_DATABASE[currentManufacturer].profiles.map(p => (
+                                                <option key={p} value={p}>{p}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="two-col">
+                                    <div className="form-group">
+                                        <label>Volume (cc)</label>
+                                        <input
+                                            type="number"
+                                            value={currentVolume}
+                                            onChange={(e) => setCurrentVolume(e.target.value)}
+                                            placeholder="e.g., 300"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Cohesivity</label>
+                                        <select
+                                            value={currentCohesivity}
+                                            onChange={(e) => setCurrentCohesivity(e.target.value)}
+                                        >
+                                            {IMPLANT_DATABASE[currentManufacturer].cohesivities.map(c => (
+                                                <option key={c} value={c}>{c}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {currentVolume && (
+                                    currentDimensions ? (
+                                        <div className="info-badge" style={{ display: 'block', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', color: '#0369a1' }}>
+                                            <strong>Current Specifications:</strong><br />
+                                            Catalog Code: <strong>{generateCatalogCode(currentManufacturer, currentProfile, currentVolume, currentCohesivity)}</strong><br />
+                                            Base Width: {currentDimensions.width.toFixed(1)} {currentDimensions.isExact ? 'cm (Exact)' : 'cm (Est.)'}<br />
+                                            Projection: {currentDimensions.projection.toFixed(1)} {currentDimensions.isExact ? 'cm (Exact)' : 'cm (Est.)'}
+                                        </div>
+                                    ) : (
+                                        <div className="info-badge" style={{ display: 'block', backgroundColor: '#fff1f2', border: '1px solid #fecdd3', color: '#e11d48' }}>
+                                            <strong>Dimensions Available:</strong><br />
+                                            No exact catalog data found for this implant.<br />
+                                            <small>Please verify manufacturer/profile/volume.</small>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+
+                            <div className="form-section">
+                                <h3>Patient Measurements (Optional)</h3>
+
+                                <div className="two-col">
+                                    <div className="form-group">
+                                        <label>Base Width (cm) <span className="info-badge">Optional</span></label>
+                                        <input
+                                            type="number"
+                                            value={baseWidth}
+                                            onChange={(e) => setBaseWidth(e.target.value)}
+                                            placeholder="e.g., 12.5"
+                                            step="0.1"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="form-section">
+                                <h3>Clinical Context</h3>
+                                <div className="form-group">
+                                    <label>Procedure Type</label>
+                                    <select
+                                        value={clinicalContext}
+                                        onChange={(e) => setClinicalContext(e.target.value)}
+                                    >
+                                        <option value="primary">Primary Augmentation</option>
+                                        <option value="revision">Revision/Exchange</option>
+                                        <option value="reconstruction">Reconstruction</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <h2>Patient Goals</h2>
+
+                            <div className="form-section">
+                                <h3>Size & Projection Goals</h3>
+
+                                <div className="form-group">
+                                    <label>Desired Size Change</label>
+                                    <select
+                                        value={goalSize}
+                                        onChange={(e) => setGoalSize(e.target.value)}
+                                    >
+                                        <option value="smaller">Smaller (~15% reduction)</option>
+                                        <option value="same">Same size</option>
+                                        <option value="larger">Larger (~20% increase)</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Projection Preference</label>
+                                    <select
+                                        value={goalProjection}
+                                        onChange={(e) => setGoalProjection(e.target.value)}
+                                    >
+                                        <option value="less">Less projection (wider, flatter)</option>
+                                        <option value="same">Similar projection</option>
+                                        <option value="more">More projection (narrower base)</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Upper Pole Fullness</label>
+                                    <select
+                                        value={goalUpperPole}
+                                        onChange={(e) => setGoalUpperPole(e.target.value)}
+                                    >
+                                        <option value="minimal">Minimal (natural slope)</option>
+                                        <option value="moderate">Moderate</option>
+                                        <option value="full">Full (augmented look)</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Desired Feel</label>
+                                    <select
+                                        value={desiredFeel}
+                                        onChange={(e) => setDesiredFeel(e.target.value)}
+                                    >
+                                        <option value="soft">Soft / Very natural</option>
+                                        <option value="natural">Natural firmness</option>
+                                        <option value="firm">Firmer feel</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-section">
+                                <h3>Manufacturer Preferences</h3>
+                                <div className="checkbox-group">
+                                    {Object.keys(IMPLANT_DATABASE)
+                                        .filter(mfr => mfr !== 'Sientra' && mfr !== 'Ideal Implant')
+                                        .map(mfr => (
+                                            <label key={mfr} className="checkbox-label">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={preferredManufacturers[mfr]}
+                                                    onChange={() => {
+                                                        const newPrefs = { ...preferredManufacturers, [mfr]: !preferredManufacturers[mfr] };
+                                                        setPreferredManufacturers(newPrefs);
+                                                    }}
+                                                />
+                                                {mfr}
+                                            </label>
+                                        ))}
+                                </div>
+                            </div>
+
+                            <div className="form-section">
+                                <h3>Surface Texture Preference</h3>
+                                <div className="form-group">
+                                    <label>Filter by Surface Type</label>
+                                    <select
+                                        value={surfacePreference}
+                                        onChange={(e) => {
+                                            setSurfacePreference(e.target.value);
+                                            // Reset if current selection becomes invalid? 
+                                            // No, just filter recommendations
+                                        }}
+                                    >
+                                        <option value="all">All surfaces (smooth, nano-texture & macro-textured)</option>
+                                        <option value="smooth-only">Smooth Only</option>
+                                        <option value="smooth-and-nano">Smooth & nano-texture (exclude macro-textured)</option>
+                                        <option value="no-textured">No Textured (exclude all textured)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="results">
+                        <h2>Recommended Options ({recommendations.length})</h2>
+
+                        {!currentVolume && !baseWidth && (
+                            <div className="alert">
+                                Please enter current implant volume or patient base width to generate recommendations
+                            </div>
+                        )}
+
+                        {(currentVolume || baseWidth) && recommendations.length === 0 && (
+                            <div className="empty-state">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                </svg>
+                                <h3>No matching implants found</h3>
+                                <p>Try adjusting your criteria or manufacturer preferences</p>
+                            </div>
+                        )}
+
+                        {recommendations.map((result, idx) => {
+                            const getSurfaceClass = (texture) => {
+                                if (texture.includes('Nano-texture') || texture.includes('SilkSurface')) {
+                                    return 'nano-texture';
+                                } else if (texture.toLowerCase().includes('smooth')) {
+                                    return 'smooth';
+                                } else {
+                                    return 'textured';
+                                }
+                            };
+
+                            return (
+                                <div key={idx} className="result-card">
+                                    <div className="result-header">
+                                        <div>
+                                            <div className="result-title">
+                                                {result.manufacturer} - {result.profile}
+                                                <span className={`surface-badge surface-${getSurfaceClass(result.surfaceInfo.texture)}`}>
+                                                    {result.surfaceInfo.texture}
+                                                </span>
+                                                {(result.surfaceInfo.shape === 'Anatomic' || result.surfaceInfo.shape === 'Ergonomic') && (
+                                                    <span className="surface-badge surface-anatomic">{result.surfaceInfo.shape}</span>
+                                                )}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#666', marginTop: '2px', fontFamily: 'JetBrains Mono, monospace' }}>
+                                                Catalog Code: {generateCatalogCode(result.manufacturer, result.profile, result.volume, result.cohesivity)}
+                                            </div>
+                                            {result.surfaceInfo.warning && (
+                                                <div className="warning-badge">
+                                                    <svg className="warning-icon" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                    </svg>
+                                                    {result.surfaceInfo.warning}
+                                                </div>
+                                            )}
+                                            {result.surfaceInfo.note && (
+                                                <div className="info-badge" style={{ display: 'block', marginTop: '6px', marginLeft: '0' }}>
+                                                    {result.surfaceInfo.note}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="match-score">
+                                            {result.score.toFixed(0)}% Match
+                                        </div>
+                                    </div>
+
+                                    <div className="result-specs">
+                                        <div className="spec-item">
+                                            <span className="spec-label">Volume:</span>
+                                            <span className="spec-value">{result.volume} cc</span>
+                                        </div>
+                                        <div className="spec-item">
+                                            <span className="spec-label">Base Width:</span>
+                                            <span className="spec-value">{result.baseWidth.toFixed(1)} cm</span>
+                                        </div>
+                                        <div className="spec-item">
+                                            <span className="spec-label">{result.isExactProjection ? 'Projection:' : 'Proj. Factor:'}</span>
+                                            <span className="spec-value">
+                                                {result.isExactProjection
+                                                    ? `${result.projection.toFixed(1)} cm`
+                                                    : result.projection.toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <div className="spec-item">
+                                            <span className="spec-label">Cohesivity:</span>
+                                            <span className="spec-value">{result.cohesivity}</span>
+                                        </div>
+                                        <div className="spec-item">
+                                            <span className="spec-label">Shape:</span>
+                                            <span className="spec-value">{result.surfaceInfo.shape}</span>
+                                        </div>
+                                    </div>
+
+                                    {result.notes && (
+                                        <div className="result-notes">
+                                            <strong>Clinical Notes:</strong> {result.notes}
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<ImplantSelector />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surgical Scout - AI-Powered Literature Search</title>
+    <meta name="description" content="Intelligent surgical case analysis and PubMed literature search powered by AI">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: hsl(210, 100%, 50%);
+            --primary-dark: hsl(210, 100%, 40%);
+            --secondary: hsl(280, 70%, 60%);
+            --success: hsl(142, 76%, 36%);
+            --bg-main: hsl(220, 15%, 10%);
+            --bg-card: hsl(220, 15%, 15%);
+            --bg-input: hsl(220, 15%, 20%);
+            --text-primary: hsl(0, 0%, 95%);
+            --text-secondary: hsl(0, 0%, 70%);
+            --border: hsl(220, 15%, 25%);
+            --shadow: rgba(0, 0, 0, 0.5);
+            --gradient-1: linear-gradient(135deg, hsl(210, 100%, 50%), hsl(280, 70%, 60%));
+            --gradient-2: linear-gradient(135deg, hsl(280, 70%, 60%), hsl(340, 80%, 55%));
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: var(--gradient-1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            position: relative;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            opacity: 0.95;
+            font-weight: 300;
+            position: relative;
+        }
+
+        /* Main Card */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px var(--shadow);
+        }
+
+        .card-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Input Section */
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        /* Example Cases */
+        .example-cases {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .example-case {
+            padding: 8px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+
+        .example-case:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Button */
+        .btn-primary {
+            width: 100%;
+            padding: 18px 32px;
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* AI Reasoning Section */
+        .ai-reasoning {
+            display: none;
+            background: var(--bg-card);
+            border-left: 4px solid var(--secondary);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .ai-reasoning.visible {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-section-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-section-title::before {
+            content: '🤖';
+            font-size: 1.3rem;
+        }
+
+        .extraction-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .extraction-item {
+            background: var(--bg-input);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .extraction-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .extraction-value {
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .search-terms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .search-term {
+            background: var(--gradient-2);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* AI Summary */
+        .ai-summary {
+            display: none;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1));
+            border: 2px solid var(--primary);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .ai-summary.visible {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .summary-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-title::before {
+            content: '💡';
+            font-size: 1.4rem;
+        }
+
+        .summary-content {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        /* Detailed Findings Section */
+        .detailed-findings {
+            display: none;
+            background: var(--bg-card);
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .detailed-findings.visible {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .findings-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .findings-title::before {
+            content: '📋';
+            font-size: 1.5rem;
+            -webkit-text-fill-color: initial;
+        }
+
+        .findings-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .findings-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .finding-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .finding-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .finding-item:hover {
+            padding-left: 8px;
+            background: rgba(168, 85, 247, 0.05);
+        }
+
+        .finding-text {
+            color: var(--text-primary);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .finding-reference {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .finding-reference a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .finding-reference a:hover {
+            color: hsl(280, 70%, 70%);
+            text-decoration: underline;
+        }
+
+        /* Results Section */
+        .results {
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .article {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .article:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+        }
+
+        .article-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .article-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .article-abstract {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        .article-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .article-link:hover {
+            background: var(--primary-dark);
+            transform: translateX(4px);
+        }
+
+        /* Error */
+        .error {
+            display: none;
+            background: hsl(0, 70%, 50%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .error.visible {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0;
+            }
+
+            header {
+                padding: 30px 15px;
+                border-radius: 12px;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 12px;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 Surgical Scout AI</h1>
+            <p class="subtitle">Intelligent surgical case analysis powered by AI + PubMed</p>
+        </header>
+
+        <div class="card">
+            <h2 class="card-header">Enter Case Description</h2>
+
+            <div class="input-group">
+                <label for="caseInput">Describe your surgical case in natural language</label>
+                <textarea id="caseInput"
+                    placeholder="e.g., 58F, DIEP flap, prior radiation, delayed reconstruction"></textarea>
+
+                <div class="example-cases">
+                    <div class="example-case" onclick="loadExample(0)">
+                        DIEP + Radiation
+                    </div>
+                    <div class="example-case" onclick="loadExample(1)">
+                        Abdominoplasty No Drains
+                    </div>
+                    <div class="example-case" onclick="loadExample(2)">
+                        Revision Rhinoplasty
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="searchCase()" id="searchBtn">
+                🔍 Analyze Case & Search Literature
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">AI is analyzing your case and searching PubMed...</div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="ai-reasoning" id="aiReasoning">
+            <h3 class="ai-section-title">AI Case Analysis</h3>
+            <div class="extraction-grid">
+                <div class="extraction-item">
+                    <div class="extraction-label">Procedure</div>
+                    <div class="extraction-value" id="extractedProcedure">-</div>
+                </div>
+                <div class="extraction-item">
+                    <div class="extraction-label">Patient Factors</div>
+                    <div class="extraction-value" id="extractedFactors">-</div>
+                </div>
+                <div class="extraction-item">
+                    <div class="extraction-label">Timing</div>
+                    <div class="extraction-value" id="extractedTiming">-</div>
+                </div>
+            </div>
+
+            <div class="extraction-label">Generated Search Terms</div>
+            <div class="search-terms" id="searchTerms"></div>
+        </div>
+
+        <div class="ai-summary" id="aiSummary">
+            <h3 class="summary-title">Clinical Summary</h3>
+            <div class="summary-content" id="summaryContent"></div>
+        </div>
+
+        <div class="detailed-findings" id="detailedFindings">
+            <h3 class="findings-title">Key Findings from Literature</h3>
+            <p class="findings-subtitle">One actionable takeaway per article</p>
+            <ul class="findings-list" id="findingsList"></ul>
+        </div>
+
+        <div class="results" id="results">
+            <div class="card">
+                <h2 class="card-header">PubMed Results</h2>
+                <div id="articles"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const examples = [
+            "58F, DIEP flap, prior radiation, delayed reconstruction",
+            "37F, abdominoplasty with progressive tension sutures, no drains",
+            "43M, revision rhinoplasty, dorsal over-resection, needs augmentation"
+        ];
+
+        function loadExample(index) {
+            document.getElementById('caseInput').value = examples[index];
+        }
+
+        async function searchCase() {
+            const caseDescription = document.getElementById('caseInput').value.trim();
+
+            if (!caseDescription) {
+                showError('Please enter a case description');
+                return;
+            }
+
+            // Reset UI
+            hideError();
+            hideResults();
+            showLoading();
+            document.getElementById('searchBtn').disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:8000/smart-search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ case_description: caseDescription })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                hideLoading();
+                displayResults(data);
+
+            } catch (error) {
+                hideLoading();
+                showError(`Error: ${error.message}`);
+                console.error('Search error:', error);
+            } finally {
+                document.getElementById('searchBtn').disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            // Display AI reasoning
+            const reasoning = document.getElementById('aiReasoning');
+            reasoning.classList.add('visible');
+
+            document.getElementById('extractedProcedure').textContent =
+                data.ai_extraction.procedure || '-';
+
+            document.getElementById('extractedFactors').textContent =
+                data.ai_extraction.patient_factors.join(', ') || '-';
+
+            document.getElementById('extractedTiming').textContent =
+                data.ai_extraction.timing || 'Not specified';
+
+            const searchTermsDiv = document.getElementById('searchTerms');
+            searchTermsDiv.innerHTML = '';
+            data.ai_extraction.search_terms.forEach(term => {
+                const termEl = document.createElement('div');
+                termEl.className = 'search-term';
+                termEl.textContent = term;
+                searchTermsDiv.appendChild(termEl);
+            });
+
+            // Display AI summary if available
+            if (data.ai_summary) {
+                const summaryDiv = document.getElementById('aiSummary');
+                summaryDiv.classList.add('visible');
+                document.getElementById('summaryContent').textContent = data.ai_summary;
+            }
+
+            // Display detailed findings if available
+            if (data.detailed_findings && data.detailed_findings.length > 0) {
+                const findingsDiv = document.getElementById('detailedFindings');
+                findingsDiv.classList.add('visible');
+
+                const findingsList = document.getElementById('findingsList');
+                findingsList.innerHTML = '';
+
+                data.detailed_findings.forEach(finding => {
+                    const item = createFindingItem(finding);
+                    findingsList.appendChild(item);
+                });
+            }
+
+            // Display articles
+            const articlesDiv = document.getElementById('articles');
+            articlesDiv.innerHTML = '';
+
+            if (data.articles && data.articles.length > 0) {
+                data.articles.forEach(article => {
+                    const articleEl = createArticleElement(article);
+                    articlesDiv.appendChild(articleEl);
+                });
+
+                document.getElementById('results').classList.add('visible');
+            } else {
+                articlesDiv.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">No articles found for this search.</p>';
+                document.getElementById('results').classList.add('visible');
+            }
+        }
+
+        function createFindingItem(finding) {
+            const li = document.createElement('li');
+            li.className = 'finding-item';
+
+            // Format the reference as "Author et al., Journal Year"
+            const ref = `${finding.authors}, ${finding.journal} ${finding.date}`;
+
+            li.innerHTML = `
+                <div class="finding-text">${finding.takeaway}</div>
+                <div class="finding-reference">
+                    — <a href="${finding.url}" target="_blank">${ref}</a>
+                </div>
+            `;
+
+            return li;
+        }
+
+        function createArticleElement(article) {
+            const div = document.createElement('div');
+            div.className = 'article';
+
+            div.innerHTML = `
+                <h3 class="article-title">${article.title}</h3>
+                <div class="article-meta">
+                    <span>👥 ${article.authors}</span>
+                    <span>📚 ${article.journal}</span>
+                    <span>📅 ${article.date}</span>
+                </div>
+                <p class="article-abstract">${article.abstract}</p>
+                <a href="${article.url}" target="_blank" class="article-link">
+                    View on PubMed →
+                </a>
+            `;
+
+            return div;
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('visible');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.remove('visible');
+        }
+
+        function hideResults() {
+            document.getElementById('aiReasoning').classList.remove('visible');
+            document.getElementById('aiSummary').classList.remove('visible');
+            document.getElementById('detailedFindings').classList.remove('visible');
+            document.getElementById('results').classList.remove('visible');
+        }
+
+        // Allow Enter key to submit (with Shift+Enter for new line)
+        document.getElementById('caseInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                searchCase();
+            }
+        });
+    </script>
+</body>
+
+</html>

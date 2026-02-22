@@ -1,0 +1,142 @@
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║                    🔍  SURGICAL SCOUT  🔍                         ║
+║                                                                   ║
+║              Automated Literature Digest System                   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+📚 What is Surgical Scout?
+   An intelligent system that automatically searches PubMed for recent
+   literature about your upcoming surgical cases and emails you AI-
+   extracted clinical pearls.
+
+🎯 What You Get:
+   ✓ Daily automated PubMed searches
+   ✓ AI-powered clinical pearl extraction
+   ✓ Beautiful HTML email digests
+   ✓ Focused on NEW techniques & products
+   ✓ Cost: <$0.01 per run
+
+🚀 Quick Start:
+   1. Open QUICKSTART.md (5-minute setup)
+   2. Add your API keys to .env
+   3. Add procedures to cases.txt
+   4. Run: ./run.sh
+   5. Check your email!
+
+📖 Full Documentation:
+   • README.md ........... Complete system guide
+   • QUICKSTART.md ....... 5-minute setup
+   • setup_gmail.md ...... Email configuration
+   • SAMPLE_OUTPUT.md .... Example digest
+   • PROJECT_SUMMARY.md .. Technical overview
+
+💡 Example Usage:
+   $ ./run.sh
+   
+   SURGICAL SCOUT - Literature Digest System
+   
+   📋 Found 3 procedures to scout:
+      • Breast Reduction
+      • Rhinoplasty
+      • DIEP Flap
+   
+   [1/3] Scouting: Breast Reduction...
+       └─ Found 5 articles
+       └─ ✓ Complete
+   
+   ✅ SUCCESS! Digest sent to your email.
+
+📊 The System Searches:
+   • Plastic and Reconstructive Surgery
+   • Aesthetic Surgery Journal  
+   • Journal of Plastic, Reconstructive & Aesthetic Surgery
+   
+   Date Range: Last 24 months
+   Focus: NEW techniques, products, safety data
+
+🔐 Security:
+   ✓ Credentials in .env (never in code)
+   ✓ .gitignore protects secrets
+   ✓ Gmail App Passwords (not account password)
+   ✓ All API calls encrypted
+
+💰 Cost:
+   PubMed searches ....... FREE
+   Claude AI (Haiku) ..... ~$0.001/procedure
+   Email (Gmail) ......... FREE
+   
+   Total: ~$0.15/month for daily digests (5 procedures)
+
+🛠️ System Requirements:
+   • Python 3.10+
+   • Internet connection
+   • Anthropic API key (console.anthropic.com)
+   • Gmail account with App Password
+
+📁 Project Structure:
+   surgical-scout/
+   ├── scout.py ............. Main script
+   ├── engine.py ............ PubMed & Claude
+   ├── email_sender.py ...... Email system
+   ├── run.sh ............... Automated runner
+   ├── cases.txt ............ Your procedures
+   ├── .env ................. Configuration
+   └── [documentation] ...... 5 detailed guides
+
+🔧 Customization:
+   • Edit cases.txt for different procedures
+   • Modify engine.py to change journals
+   • Adjust date range in search_pubmed()
+   • Change AI model for better analysis
+   • Customize email template in scout.py
+
+📅 Automation:
+   Set up daily runs with:
+   • macOS/Linux: cron (see README.md)
+   • Windows: Task Scheduler (see README.md)
+
+🎓 Learning Resources:
+   All code is heavily commented and includes:
+   • Docstrings for every function
+   • Type hints for clarity
+   • Error handling examples
+   • Logging best practices
+
+⚡ Test Individual Components:
+   $ python engine.py        # Test PubMed & Claude
+   $ python email_sender.py  # Test email system
+   $ python scout.py         # Test full workflow
+
+🐛 Troubleshooting:
+   Check the log file:
+   $ cat surgical_scout.log
+   
+   Common issues:
+   • Authentication errors → Check App Password
+   • No articles found → Try broader search terms
+   • API errors → Verify API keys in .env
+
+✨ Production-Ready Features:
+   ✓ Comprehensive error handling
+   ✓ Retry logic for network failures
+   ✓ Detailed logging with timestamps
+   ✓ Environment validation
+   ✓ Modular, maintainable code
+   ✓ Security best practices
+   ✓ Complete documentation
+
+═══════════════════════════════════════════════════════════════════
+
+            Ready to stay current with surgical literature?
+                        
+                     👉 Open QUICKSTART.md 👈
+                              
+                    Then run: ./run.sh
+                              
+═══════════════════════════════════════════════════════════════════
+
+Built with ❤️ for surgical residents and attending surgeons
+Version 1.0 | Python 3.10+ | 1,800+ lines of production code
+
