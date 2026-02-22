@@ -646,6 +646,9 @@
     </div>
 
     <script>
+        // ✅ Backend API URL — update this after deploying to Render
+        const API_BASE_URL = 'https://surgical-scout-api.onrender.com';
+
         const examples = [
             "58F, DIEP flap, prior radiation, delayed reconstruction",
             "37F, abdominoplasty with progressive tension sutures, no drains",
@@ -671,7 +674,7 @@
             document.getElementById('searchBtn').disabled = true;
 
             try {
-                const response = await fetch('http://localhost:8000/smart-search', {
+                const response = await fetch(`${API_BASE_URL}/smart-search`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
