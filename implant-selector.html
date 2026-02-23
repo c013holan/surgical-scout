@@ -2400,7 +2400,7 @@
                     return;
                 }
 
-                setLookupStatus('Searching...');
+                setLookupStatus(upperCode.length > 5 ? '⚠️ Code not found in database' : 'Keep typing...');
             };
 
 
