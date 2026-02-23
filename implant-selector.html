@@ -476,6 +476,7 @@
                 },
                 ranges: {
                     'Low': { min: 120, max: 800, projection: 1.0 },
+                    'Low Plus': { min: 125, max: 640, projection: 1.15 },
                     'Moderate': { min: 125, max: 800, projection: 1.3 },
                     'Moderate Plus': { min: 150, max: 800, projection: 1.5 },
                     'Full': { min: 150, max: 800, projection: 1.8 },
@@ -484,6 +485,7 @@
                 baseWidthFormula: (volume, profile) => {
                     const projectionFactors = {
                         'Low': 1.15,
+                        'Low Plus': 1.08,
                         'Moderate': 1.0,
                         'Moderate Plus': 0.95,
                         'Full': 0.85,
