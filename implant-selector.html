@@ -2400,6 +2400,69 @@
                     return;
                 }
 
+                // 4. Universal Fuzzy Fallback (Handles dashes, spaces, and extra zero typos for ALL manufacturers)
+                const normalUpperCode = upperCode.replace(/[\s-]/g, '');
+
+                for (const [manName, manData] of Object.entries(IMPLANT_DATABASE)) {
+                    if (manData.catalog) {
+                        for (const [profile, items] of Object.entries(manData.catalog)) {
+                            const match = items.find(item => {
+                                if (!item.code) return false;
+                                const normalDbCode = item.code.replace(/[\s-]/g, '').toUpperCase();
+
+                                // 4a. Exact alphanumeric match ignoring spaces/dashes (e.g., "350-5004 BC" matches DB "3505004 BC", "SRM 410" matches "SRM-410")
+                                if (normalDbCode === normalUpperCode) return true;
+
+                                // 4b. Typo handling (e.g., user typed 350-50004BC instead of 350-5004 BC)
+                                // Only attempting if the volume matches
+                                const volStr = item.vol.toString();
+                                if (normalUpperCode.includes(volStr) && normalDbCode.includes(volStr)) {
+                                    // Extract the parts before and after the volume to see if they match
+                                    // Instead of hardcoding all suffixes, we split by the volume string
+                                    // Note: If a volume appears twice (e.g., '200' in '200-2000'), this simple split might fail,
+                                    // but we focus on the first match.
+                                    const userParts = normalUpperCode.split(volStr);
+                                    const dbParts = normalDbCode.split(volStr);
+
+                                    if (userParts.length >= 2 && dbParts.length >= 2) {
+                                        const userPrefix = userParts[0];
+                                        const userSuffix = userParts.slice(1).join(volStr); // Rejoin in case volume appeared multiple times
+
+                                        const dbPrefix = dbParts[0];
+                                        const dbSuffix = dbParts.slice(1).join(volStr);
+
+                                        // Both prefix and suffix must technically match 
+                                        if (userPrefix === dbPrefix && userSuffix === dbSuffix) {
+                                            // Allow max length difference of 2 characters (e.g., an extra '0' in the code like 350-50004BC vs 3505004BC)
+                                            if (Math.abs(normalDbCode.length - normalUpperCode.length) <= 2) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                                return false;
+                            });
+
+                            if (match) {
+                                // Cohesivity mapping specifically for Mentor
+                                let cohesivity = match.cohesivity;
+                                if (manName === 'Mentor') {
+                                    if (cohesivity === 'Standard') cohesivity = 'MemoryGel';
+                                    else if (cohesivity === 'Xtra') cohesivity = 'MemoryGel Xtra';
+                                    else if (cohesivity === 'BOOST') cohesivity = 'MemoryGel BOOST';
+                                }
+
+                                setCurrentManufacturer(manName);
+                                setCurrentProfile(profile);
+                                setCurrentVolume(match.vol.toString());
+                                setCurrentCohesivity(cohesivity || manData.cohesivities[0]);
+                                setLookupStatus(`✅ Found (Fuzzy Match): ${manName} ${match.vol}cc ${profile}`);
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 setLookupStatus(upperCode.length > 5 ? '⚠️ Code not found in database' : 'Keep typing...');
             };
 
